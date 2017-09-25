@@ -3,11 +3,12 @@ FROM python:2.7-jessie
 # this base image depends on buildpack-deps which already installed 
 # wget, tar, gcc
 
-ENV STAN_VERSION 2.17.0
+ENV STAN_VERSION=2.17.0 \
+    USR=fit
 
 ## add a non-root user
-RUN groupadd -r fit \
-    && useradd --no-log-init -r -g fit fit
+RUN groupadd $USR \
+    && useradd -m -g $USR $USR
 
 WORKDIR /opt
 
@@ -40,5 +41,7 @@ EXPOSE 8888
 
 ## run default script
 USER fit
-CMD ["jupyter", "notebook"]
+# start jupyter listening on all interfaces
+WORKDIR /home/$USR
+CMD ["jupyter", "notebook", "--ip", "0.0.0.0"]
 
