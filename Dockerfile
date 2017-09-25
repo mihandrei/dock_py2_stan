@@ -11,10 +11,6 @@ RUN groupadd -r fit \
 
 WORKDIR /opt
 
-## install python scientific libraries
-
-RUN pip install numpy scipy nibabel
-
 ## get stan source
 # wget --quiet --output-document=- 
 RUN wget -q -O - "https://github.com/stan-dev/cmdstan/releases/download/v$STAN_VERSION/cmdstan-$STAN_VERSION.tar.gz" \
@@ -32,11 +28,17 @@ RUN cd cmdstan-$STAN_VERSION \
 	&& make build \
 	&& make clean  
 
+## install python scientific libraries
+RUN pip install numpy scipy nibabel jupyter 
+
+## expose ports
+EXPOSE 8888
+
 ## add data volume
 # VOLUME /data
 # Using bind mounts instead
 
 ## run default script
 USER fit
-CMD ["bash"]
+CMD ["jupyter", "notebook"]
 
