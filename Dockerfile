@@ -5,6 +5,10 @@ FROM python:2.7-jessie
 
 ENV STAN_VERSION 2.17.0
 
+## add a non-root user
+RUN groupadd -r fit \
+    && useradd --no-log-init -r -g fit fit
+
 WORKDIR /opt
 
 ## install python scientific libraries
@@ -23,8 +27,16 @@ RUN wget -q -O - "https://github.com/stan-dev/cmdstan/releases/download/v$STAN_V
 
 ## build stan
 # stan is confused about the compiler on this non-standard linux
-RUN cd /opt/cmdstan-$STAN_VERSION \
+RUN cd cmdstan-$STAN_VERSION \
 	&& echo 'CC=g++' > make/local \
 	&& make build \
 	&& make clean  
+
+## add data volume
+# VOLUME /data
+# Using bind mounts instead
+
+## run default script
+USER fit
+CMD ["bash"]
 
