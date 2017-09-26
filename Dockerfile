@@ -30,18 +30,23 @@ RUN cd cmdstan-$STAN_VERSION \
 	&& make clean  
 
 ## install python scientific libraries
-RUN pip install numpy scipy nibabel jupyter 
+RUN pip install numpy scipy nibabel 
+RUN pip install matplotlib jupyter 
 
 ## expose ports
 EXPOSE 8888
 
-## add data volume
-# VOLUME /data
-# Using bind mounts instead
+WORKDIR /home/$USR
+## add data volume for working data and output
+VOLUME data
+# expecting to use read only bind mounts for input data
+# chown so that the unprivileged user can write to data
+RUN mkdir data \
+    && chown $USR:$USR data
 
 ## run default script
 USER fit
+WORKDIR /home/$USR/data
 # start jupyter listening on all interfaces
-WORKDIR /home/$USR
 CMD ["jupyter", "notebook", "--ip", "0.0.0.0"]
 
